@@ -21,16 +21,5 @@ public class SpiderEngine {
             threadList.add(t);
             t.start();
         }
-        while (true) {
-            for (Thread t : threadList) {
-                if (!t.isAlive()) {
-                    Thread newThread = new Thread(leg, t.getName());
-                    threadList.remove(t);
-                    threadList.add(newThread);
-                    newThread.start();
-                    break;
-                }
-            }
-        }
     }
 }

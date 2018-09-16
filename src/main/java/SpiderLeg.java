@@ -15,28 +15,30 @@ public class SpiderLeg implements Runnable {
     }
 
     public void run() {
-        String nextUrl = SpiderEngine.toVisit.poll();
-        if (nextUrl != null) {
-            if (!SpiderEngine.visited.contains(nextUrl)) {
-                SpiderEngine.visited.add(nextUrl);
-                search(nextUrl);
+        while (true) {
+            String nextUrl = SpiderEngine.toVisit.poll();
+            if (nextUrl != null) {
+                if (!SpiderEngine.visited.contains(nextUrl)) {
+                    SpiderEngine.visited.add(nextUrl);
+                    search(nextUrl);
+                }
             }
         }
-
     }
 
     private void search(String url) {
+        System.out.println(SpiderEngine.visited.size() + " " + SpiderEngine.toVisit.size());
         try {
             Connection connection = Jsoup.connect(url).userAgent(USER_AGENT);
             Document htmlDocument = connection.get();
             if (connection.response().statusCode() == 200) {
-              //  System.out.println("\n**Visiting** Received web page at " + url + " From " + Thread.currentThread().getName());
+                //System.out.println("\n**Visiting** Received web page at " + url + " From " + Thread.currentThread().getName());
                 if (searchForWord(htmlDocument)) {
                     System.out.println(String.format("Find %s at %s From thread %s", this.target, url, Thread.currentThread().getName()));
                 }
             }
             if (!connection.response().contentType().contains("text/html")) {
-                // System.out.println("**Failure** Retrieved something other than HTML");
+               // System.out.println("**Failure** Retrieved something other than HTML");
                 return;
             }
             Elements linkedPage = htmlDocument.select("a[href]");
@@ -47,6 +49,8 @@ public class SpiderLeg implements Runnable {
             }
         } catch (Exception e) {
             System.out.println(e.toString());
+        } finally {
+            System.gc();
         }
     }
 
